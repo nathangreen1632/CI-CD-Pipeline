@@ -1,0 +1,51 @@
+# Name of the GitHub Actions workflow
+name: Deploy
+
+# Trigger the workflow on push and pull request events to the main branch
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Define a job named "render-deploy"
+  render-deploy:
+    # Specify the operating system to run the job on
+    runs-on: ubuntu-latest
+
+    # Define the steps to be executed in the job
+    steps:
+      # Checkout the code from the repository
+      - uses: actions/checkout@v3
+
+      # Set up Node.js (same version used in main.yml)
+      - name: Use Node.js 21.x
+        uses: actions/setup-node@v4
+        with:
+            node-version: 21.x
+
+      # Install dependencies (same as in main.yml)
+      - name: Install Deps
+        run: npm install
+
+      # Run build (same as in main.yml)
+      - name: Run Build
+        run: npm run build
+
+      # Run Cypress component tests (same as in main.yml, with proper configuration)
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          component: true
+
+      # Define a step for Deployment (runs only on 'main' branch)
+      - name: Deploy
+        if: github.ref == 'refs/heads/main'
+        # Set an environment variable with the deployment URL from secrets
+        env:
+          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        # Run the deployment command
+        run: |
+          curl "$DEPLOY_URL"
