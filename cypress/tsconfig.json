@@ -1,10 +1,20 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es5", "dom"],
-    "types": ["cypress", "node"],
-    "jsx": "react-jsx",
+    "target": "es6",                                // ✅ Use ES6 for JSX and modern features
+    "lib": ["es6", "dom"],                          // ✅ Upgrade from es5 to es6
+    "types": ["cypress", "node", "@cypress/react18"],
+    "jsx": "react-jsx",                             // ✅ Good for React 17/18
+    "module": "esnext",                             // ✅ Required for Cypress + React imports
+    "moduleResolution": "node",                     // ✅ Ensures Cypress modules resolve
+    "esModuleInterop": true,                        // ✅ Handles default imports cleanly
+    "allowSyntheticDefaultImports": true            // ✅ Helps React & Cypress work together
   },
-  "include": ["**/*.ts", "**/*.jsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",                                     // ✅ Needed for TSX tests
+    "**/*.js",
+    "**/*.jsx",
+    "cypress/support/cypress.d.ts"                  // ✅ Ensure mount types are included
+  ]
 }
