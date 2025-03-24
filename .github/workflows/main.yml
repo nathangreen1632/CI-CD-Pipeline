@@ -1,5 +1,4 @@
-# Name of workflow
-name: Lint and Test workflow
+name: Build and Test workflow
 
 # Trigger workflow on all pull requests
 on:
@@ -11,8 +10,10 @@ on:
 # Jobs to carry out
 jobs:
   test:
-    # Operating system to run job on
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
 
     # Steps in job
     steps:
@@ -20,25 +21,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 21.x
+      - name: CI and CD using Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 21.x
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       # Install dependencies
       - name: Install Deps
-        run: npm install
-
-      # Run lint
-      # - name: Run Lint
-      #   run: npm run lint
-
-      # Run build
-      - name: Run Build
-        run: npm run build
+        run: npm ci
 
       # Run Cypress tests
-      - name: Cypress run
+      - name: Cypress run component & e2e tests
         uses: cypress-io/github-action@v6
         with:
+          build: npm run build
+          start: npm run start
           component: true
